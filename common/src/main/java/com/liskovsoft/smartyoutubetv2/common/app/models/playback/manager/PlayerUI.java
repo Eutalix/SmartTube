@@ -1,5 +1,6 @@
 package com.liskovsoft.smartyoutubetv2.common.app.models.playback.manager;
 
+import com.liskovsoft.mediaserviceinterfaces.data.EndScreenItem;
 import com.liskovsoft.smartyoutubetv2.common.app.models.data.Video;
 import com.liskovsoft.smartyoutubetv2.common.app.models.data.VideoGroup;
 import com.liskovsoft.smartyoutubetv2.common.app.models.playback.ui.SeekBarSegment;
@@ -39,4 +40,9 @@ public interface PlayerUI {
     void setSeekBarSegments(List<SeekBarSegment> segments);
     void updateEndingTime();
     void setChatReceiver(ChatReceiver chatReceiver);
+    
+    // End Screen methods
+    void showEndScreen(List<EndScreenItem> items);
+    void hideEndScreen();
+    boolean isEndScreenShown();
 }

@@ -107,6 +107,15 @@
         android:layout_height="match_parent"
         android:visibility="gone"/>
 
+    <!-- MOD: End Screen overlay -->
+    <FrameLayout
+        android:id="@+id/end_screen_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        android:clickable="false"
+        android:focusable="false"/>
+
     <androidx.leanback.widget.NonOverlappingFrameLayout
         android:id="@+id/playback_fragment_background"
         android:transitionGroup="false"
