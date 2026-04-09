@@ -119,30 +119,16 @@ public class VideoLoaderController extends BasePlayerController {
     }
 
     private void onLongBuffering() {
-        if (getPlayer() == null || getVideo() == null) {
-            return;
-        }
-
-        // Stream end check (hangs on buffering)
-        if (getPlayerTweaksData().isHighBitrateFormatsEnabled()) {
-            getPlayerTweaksData().setHighBitrateFormatsEnabled(false); // Response code: 429
-            reloadVideo();
-        } else if ((!getVideo().isLive || getVideo().isLiveEnd)
-                && getPlayer().getDurationMs() - getPlayer().getPositionMs() < STREAM_END_THRESHOLD_MS) {
+        if (isPlaybackEnded()) {
             getMainController().onPlayEnd();
-        } else if (!getVideo().isLive && !getVideo().isLiveEnd) {
-            if (isSubtitlesEnabled()) {
-                // Long loading subtitles cause hangs
-                disableSubtitles();
-                reloadVideo();
-            } else if (!getPlayerTweaksData().isNetworkErrorFixingDisabled()) {
-                // Faster source may differ across a devices. Try them one by one.
-                //switchNextEngine();
-                //restartEngine();
-                if (!isFasterDataSourceEnabled()) {
-                    enableFasterDataSource();
-                    restartEngine();
-                }
+        } else if (isOfflineVideo() && isSubtitlesEnabled()) {
+            // Long loading subtitles cause hangs
+            disableSubtitles();
+            reloadVideo();
+        } else if (!getPlayerTweaksData().isNetworkErrorFixingDisabled()) {
+            if (!isFasterDataSourceEnabled()) {
+                enableFasterDataSource();
+                restartEngine();
             }
         }
     }
@@ -338,7 +324,9 @@ public class VideoLoaderController extends BasePlayerController {
             return;
         }
 
-        getPlayer().showProgressBar(true);
+        // Fix progress hide if engine still running (next video switch)
+        //getPlayer().showProgressBar(true);
+        Utils.post(() -> getPlayer().showProgressBar(true));
         disposeActions();
 
         ServiceManager service = YouTubeServiceManager.instance();
@@ -535,6 +523,8 @@ public class VideoLoaderController extends BasePlayerController {
 
         if (restart) {
             restartEngine();
+        } else if (isPlaybackEnded()) {
+            getMainController().onPlayEnd();
         } else {
             reloadVideo();
         }
@@ -678,7 +668,7 @@ public class VideoLoaderController extends BasePlayerController {
                 errorTitle = getContext().getString(msgResId);
                 break;
             case PlayerEventListener.ERROR_TYPE_UNEXPECTED:
-                errorTitle = getContext().getString(R.string.msg_player_error_unexpected);
+                errorTitle = getContext().getString(R.string.player_unexpected_error);
                 break;
             default:
                 errorTitle = getContext().getString(R.string.msg_player_error, type);
@@ -1022,5 +1012,22 @@ public class VideoLoaderController extends BasePlayerController {
 
         getPlayerData().setSubtitlesPerChannelEnabled(false); // Important!
         getPlayerData().setFormat(FormatItem.SUBTITLE_NONE);
+    }
+
+    private boolean isPlaybackEnded() {
+        if (getPlayer() == null || getVideo() == null) {
+            return false;
+        }
+
+        return (!getVideo().isLive || getVideo().isLiveEnd)
+                && getPlayer().getDurationMs() - getPlayer().getPositionMs() < STREAM_END_THRESHOLD_MS;
+    }
+
+    private boolean isOfflineVideo() {
+        if (getPlayer() == null || getVideo() == null) {
+            return false;
+        }
+
+        return !getVideo().isLive && !getVideo().isLiveEnd;
     }
 }

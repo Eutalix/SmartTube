@@ -221,6 +221,7 @@
     <string name="msg_player_error_audio_renderer">Seçilen SES biçimi desteklenmiyor.\nOynatıcıdaki HQ düğmesine basarak başka bir tane seçmeyi deneyin.\nBu işe yaramazsa cihazı yeniden başlatmayı deneyin.</string>
     <string name="msg_player_error_subtitle_renderer">Seçilen ALTYAZI biçimi desteklenmiyor.\nOynatıcıdaki CC düğmesine uzun basarak başka bir tane seçmeyi deneyin.\nBu işe yaramazsa cihazı yeniden başlatmayı deneyin.</string>
     <string name="msg_player_error_unexpected">Bilinmeyen video çözücü hatası</string>
+    <string name="player_unexpected_error">Beklenmeyen oynatma hatası</string>
     <string name="video_aspect">En boy oranı</string>
     <string name="player_tweaks">Geliştirici seçenekleri</string>
     <string name="header_uploads">Yüklemeler</string>
@@ -633,6 +634,7 @@
     <string name="unlock_high_bitrate_audio_formats">Yüksek bit hızına sahip mp4a biçimlerinin kilidini aç</string>
     <string name="color_scheme_blue">Mavi</string>
     <string name="color_scheme_dark_blue">Koyu Mavi</string>
+    <string name="color_scheme_dark_blue_oled">Koyu Mavi (OLED)</string>
     <string name="player_speed_per_channel">Her kanal için</string>
     <string name="disable_popular_searches">Popüler arama sorgularını devre dışı bırak</string>
     <string name="multi_profiles">Her hesap için ayrı ayarlar kullan</string>

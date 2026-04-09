@@ -221,6 +221,7 @@
     <string name="msg_player_error_audio_renderer">Selected AUDIO format isn\'t supported.\nTry to select another one by pressing HQ button in the player.\nIf this won\'t help try to reboot the device.</string>
     <string name="msg_player_error_subtitle_renderer">Selected SUBTITLE format isn\'t supported.\nTry to select another one by long pressing CC button in the player.\nIf this won\'t help try to reboot the device.</string>
     <string name="msg_player_error_unexpected">Unknown video decoder error</string>
+    <string name="player_unexpected_error">Unexpected playback error</string>
     <string name="video_aspect">Aspect ratio</string>
     <string name="player_tweaks">Developer options</string>
     <string name="header_uploads">Uploads</string>
@@ -633,6 +634,7 @@
     <string name="unlock_high_bitrate_audio_formats">Unlock high bitrate mp4a formats</string>
     <string name="color_scheme_blue">Blue</string>
     <string name="color_scheme_dark_blue">Dark Blue</string>
+    <string name="color_scheme_dark_blue_oled">Dark Blue (OLED)</string>
     <string name="player_speed_per_channel">Per each channel</string>
     <string name="disable_popular_searches">Disable popular search queries</string>
     <string name="multi_profiles">Use separate settings per each account</string>

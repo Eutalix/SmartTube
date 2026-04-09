@@ -221,6 +221,7 @@
     <string name="msg_player_error_audio_renderer">Обраний АУДІОФОРМАТ не підтримуєтся.\nСпробуйте обрати інший формат, натиснувши кнопку HQ у плеєрі.\nЯкщо це не допоможе, то спробуйте перезавантажити пристрій.</string>
     <string name="msg_player_error_subtitle_renderer">Обраний формат СУБТИТРІВ не підтримуєтся.\nСпробуйте обрати інший формат, утримуючи кнопку CC у плеєрі.\nЯкщо це не допоможе, то спробуйте перезавантажити пристрій.</string>
     <string name="msg_player_error_unexpected">Невідома помилка у відеодекодері</string>
+    <string name="player_unexpected_error">Неочікувана помилка відтворення</string>
     <string name="video_aspect">Співвідношення сторін</string>
     <string name="player_tweaks">Для розробників</string>
     <string name="header_uploads">Завантаження</string>
@@ -628,6 +629,7 @@
     <string name="unlock_high_bitrate_audio_formats">Розблокувати mp4a формати з високим бітрейтом</string>
     <string name="color_scheme_blue">Блакитна</string>
     <string name="color_scheme_dark_blue">Темно-блакитна</string>
+    <string name="color_scheme_dark_blue_oled">Темно-блакитна (OLED)</string>
     <string name="player_speed_per_channel">Для кожного каналу</string>
     <string name="disable_popular_searches">Не показувати популяні пошукові запити</string>
     <string name="multi_profiles">Використовувати окремі налаштування для кожного облікового запису</string>
