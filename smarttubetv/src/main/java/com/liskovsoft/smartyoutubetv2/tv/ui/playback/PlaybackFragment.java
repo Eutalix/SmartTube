@@ -30,6 +30,7 @@ import androidx.leanback.widget.Row;
 import androidx.leanback.widget.RowPresenter;
 import androidx.leanback.widget.RowPresenter.ViewHolder;
 
+import com.bumptech.glide.Glide;
 import com.github.vkay94.dtpv.DoubleTapPlayerAdapter;
 import com.github.vkay94.dtpv.DoubleTapPlayerView;
 import com.github.vkay94.dtpv.youtube.YouTubeOverlay;
@@ -44,11 +45,13 @@ import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector;
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.util.Util;
+import com.liskovsoft.mediaserviceinterfaces.data.EndScreenItem;
 import com.liskovsoft.mediaserviceinterfaces.data.MediaItemFormatInfo;
 import com.liskovsoft.sharedutils.helpers.Helpers;
 import com.liskovsoft.sharedutils.mylogger.Log;
 import com.liskovsoft.smartyoutubetv2.common.app.models.data.Video;
 import com.liskovsoft.smartyoutubetv2.common.app.models.data.VideoGroup;
+import com.liskovsoft.smartyoutubetv2.common.app.models.playback.controllers.EndScreenController;
 import com.liskovsoft.smartyoutubetv2.common.app.models.playback.manager.PlayerUI;
 import com.liskovsoft.smartyoutubetv2.common.app.models.playback.ui.ChatReceiver;
 import com.liskovsoft.smartyoutubetv2.common.app.models.playback.ui.SeekBarSegment;
@@ -83,8 +86,10 @@ import com.liskovsoft.smartyoutubetv2.tv.ui.playback.other.VideoPlayerGlue;
 import com.liskovsoft.smartyoutubetv2.tv.ui.playback.other.VideoPlayerGlue.OnActionClickedListener;
 import com.liskovsoft.smartyoutubetv2.tv.ui.playback.previewtimebar.StoryboardSeekDataProvider;
 import com.liskovsoft.smartyoutubetv2.tv.ui.widgets.chat.LiveChatView;
+import com.liskovsoft.smartyoutubetv2.tv.ui.widgets.complexcardview.ComplexImageCardView;
 import com.liskovsoft.smartyoutubetv2.tv.ui.widgets.time.DateTimeView;
 import com.liskovsoft.smartyoutubetv2.tv.ui.widgets.time.EndingTimeView;
+import com.liskovsoft.smartyoutubetv2.tv.util.ViewUtil;
 import com.liskovsoft.googlecommon.common.helpers.YouTubeHelper;
 
 import java.io.InputStream;
@@ -124,6 +129,8 @@ public class PlaybackFragment extends SeekModePlaybackFragment implements Playba
     private Boolean mIsControlsShownPreviously;
     private Video mPendingFocus;
     private String mSelectedVideoId;
+    private ViewGroup mEndScreenOverlay;
+    private boolean mIsEndScreenShown;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -441,6 +448,9 @@ public class PlaybackFragment extends SeekModePlaybackFragment implements Playba
                     .performListener(null);
         }
         mDoubleTapPlayerAdapter = null;
+        // Cleanup end screen
+        hideEndScreen();
+        mEndScreenOverlay = null;
     }
 
     private void createPlayerObjects() {
@@ -1141,6 +1151,112 @@ public class PlaybackFragment extends SeekModePlaybackFragment implements Playba
     }
 
     // End Engine Events
+
+    // Begin End Screen Implementation
+
+    @Override
+    public void showEndScreen(List<EndScreenItem> items) {
+        if (items == null || items.isEmpty() || getView() == null) {
+            return;
+        }
+
+        // Create overlay if needed
+        if (mEndScreenOverlay == null) {
+            mEndScreenOverlay = getView().findViewById(R.id.end_screen_overlay);
+            if (mEndScreenOverlay == null) {
+                Log.e(TAG, "End screen overlay not found in layout");
+                return;
+            }
+        }
+
+        // Clear previous items
+        mEndScreenOverlay.removeAllViews();
+
+        // Add end screen items
+        for (EndScreenItem item : items) {
+            View itemView = createEndScreenItemView(item);
+            if (itemView != null) {
+                mEndScreenOverlay.addView(itemView);
+            }
+        }
+
+        mEndScreenOverlay.setVisibility(View.VISIBLE);
+        mIsEndScreenShown = true;
+
+        Log.d(TAG, "Showing end screen with %d items", items.size());
+    }
+
+    @Override
+    public void hideEndScreen() {
+        if (mEndScreenOverlay != null) {
+            mEndScreenOverlay.setVisibility(View.GONE);
+            mEndScreenOverlay.removeAllViews();
+        }
+        mIsEndScreenShown = false;
+    }
+
+    @Override
+    public boolean isEndScreenShown() {
+        return mIsEndScreenShown;
+    }
+
+    /**
+     * Create a view for an end screen item
+     */
+    private View createEndScreenItemView(EndScreenItem item) {
+        if (getContext() == null || mEndScreenOverlay == null) {
+            return null;
+        }
+
+        // Reuse existing card presenter for consistency
+        ComplexImageCardView cardView = new ComplexImageCardView(getContext());
+        
+        // Set dimensions based on item positioning
+        int overlayWidth = mEndScreenOverlay.getWidth();
+        int overlayHeight = mEndScreenOverlay.getHeight();
+        
+        // YouTube uses relative positioning (0.0 to 1.0)
+        int cardWidth = (int) (overlayWidth * item.getWidth());
+        int cardHeight = (int) (cardWidth / item.getAspectRatio());
+        
+        ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(cardWidth, cardHeight);
+        cardView.setLayoutParams(layoutParams);
+        
+        // Position the card
+        cardView.setX(overlayWidth * item.getLeft());
+        cardView.setY(overlayHeight * item.getTop());
+        
+        // Set card content
+        cardView.setTitleText(item.getTitle());
+        cardView.setContentText(item.getMetadata());
+        cardView.enableBadge(false);
+        cardView.enableTitle(true);
+        cardView.enableContent(true);
+        
+        // Load image
+        if (item.getImageUrl() != null) {
+            Glide.with(getContext())
+                    .load(item.getImageUrl())
+                    .apply(ViewUtil.glideOptions())
+                    .override(cardWidth, cardHeight)
+                    .into(cardView.getMainImageView());
+        }
+        
+        // Set click listener
+        cardView.setOnClickListener(v -> {
+            EndScreenController controller = mPlaybackPresenter.getController(EndScreenController.class);
+            if (controller != null) {
+                controller.onEndScreenItemClicked(item);
+            }
+        });
+        
+        cardView.setFocusable(true);
+        cardView.setFocusableInTouchMode(true);
+        
+        return cardView;
+    }
+
+    // End End Screen Implementation
 
     @Override
     public void onDestroy() {
